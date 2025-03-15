@@ -1,0 +1,19 @@
+name: snowglobe_collection
+description: A Snowglobe Collection App
+
+# Aggiungi questa parte per specificare il constraint dell'SDK
+environment:
+  sdk: "^3.7.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  supabase_flutter: ^2.8.4
+  provider: ^6.1.2
+  flutter_map: ^8.1.1
+  geolocator: ^13.0.2
+  image_picker: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
