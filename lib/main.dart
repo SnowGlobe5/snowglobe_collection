@@ -18,16 +18,26 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Snowglobe Collection',
       theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.deepPurple,
-        // Se l'accentColor non viene più usato, puoi utilizzare colorScheme
+        scaffoldBackgroundColor: Color(0xFF121212), // Dark background
         colorScheme: ColorScheme.dark(
-          primary: Colors.deepPurple,
+          primary: Colors.deepPurpleAccent,
+          secondary: Colors.deepPurple,
         ),
-        scaffoldBackgroundColor: Colors.black,
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.black,
+          backgroundColor: Color(0xFF1E1E1E),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFF1E1E1E),
+          selectedItemColor: Colors.deepPurpleAccent,
+          unselectedItemColor: Colors.grey,
         ),
       ),
       home: TabbedHome(),

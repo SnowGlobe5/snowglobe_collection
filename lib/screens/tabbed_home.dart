@@ -1,36 +1,56 @@
 import 'package:flutter/material.dart';
 import 'snowglobe_list_page.dart';
 import 'snowglobe_map_page.dart';
+import 'snowglobe_stats_page.dart';
 
-class TabbedHome extends StatelessWidget {
+class TabbedHome extends StatefulWidget {
+  @override
+  _TabbedHomeState createState() => _TabbedHomeState();
+}
+
+class _TabbedHomeState extends State<TabbedHome> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    SnowglobeListPage(),
+    SnowglobeMapPage(),
+    SnowglobeStatsPage(),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2, // Due tab: Lista e Mappa
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Snowglobe Collection'),
-          bottom: TabBar(
-            tabs: [
-              Tab(text: 'Lista'),
-              Tab(text: 'Mappa'),
-            ],
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+              onPressed: () {
+                // Qui puoi aggiungere il codice per l'inserimento
+                print('Inserimento stub attivato');
+              },
+              child: Icon(Icons.add),
+            )
+          : null,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'List',
           ),
-        ),
-        body: TabBarView(
-          children: [
-            SnowglobeListPage(),
-            SnowglobeMapPage(),
-          ],
-        ),
-        // Bottone per aggiungere un nuovo record (stub)
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // TODO: Implement add new record
-            print("Add new record tapped");
-          },
-          child: Icon(Icons.add),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: 'Map',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Stats',
+          ),
+        ],
       ),
     );
   }

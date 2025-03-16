@@ -22,23 +22,31 @@ class SnowglobeService {
       // Filter for dates greater than or equal to startDate
       query = query.gte('date', startDate.toIso8601String());
     }
-    
+
     if (endDate != null) {
       // Filter for dates less than or equal to endDate (end of day)
-      DateTime endOfDay = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      DateTime endOfDay = DateTime(
+        endDate.year,
+        endDate.month,
+        endDate.day,
+        23,
+        59,
+        59,
+      );
       query = query.lte('date', endOfDay.toIso8601String());
     }
 
     // Apply other filters if provided (case-insensitive partial match)
     filters.forEach((field, value) {
-      if (value.isNotEmpty && field != 'date') {  // Skip date filter as we handle it separately
+      if (value.isNotEmpty && field != 'date') {
+        // Skip date filter as we handle it separately
         query = query.filter(field, 'ilike', '%$value%');
       }
     });
 
     // Apply sorting
     bool ascending = sortOrder.toLowerCase() == 'asc';
-    
+
     // Apply pagination and sorting in the final execution
     final data = await query
         .order(sortField, ascending: ascending)
@@ -59,5 +67,82 @@ class SnowglobeService {
     return (data as List<dynamic>)
         .map((item) => Snowglobe.fromMap(item as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<Map<String, int>> getAcquisitionsPerYear() async {
+    try {
+      final response = await supabase
+          .from('snowglobes')
+          .select('date')
+          .order('date', ascending: true);
+
+      final data = response as List<dynamic>;
+      final Map<String, int> yearCounts = {};
+      for (final item in data) {
+        final dateStr = item['date'] as String?;
+        if (dateStr == null) continue;
+        final date = DateTime.tryParse(dateStr);
+        if (date == null) continue;
+        final year = date.year.toString();
+        yearCounts[year] = (yearCounts[year] ?? 0) + 1;
+      }
+      return yearCounts;
+    } catch (e) {
+      throw Exception('Errore nel caricamento dei dati: $e');
+    }
+  }
+
+  Future<Map<String, int>> getCountryDistribution() async {
+    try {
+      final response = await supabase
+          .from('snowglobes')
+          .select('country')
+          .not('country', 'is', null);
+
+      final data = response as List<dynamic>;
+      final Map<String, int> countryCounts = {};
+      for (final item in data) {
+        final country = item['country'] as String?;
+        if (country == null) continue;
+        countryCounts[country] = (countryCounts[country] ?? 0) + 1;
+      }
+      return countryCounts;
+    } catch (e) {
+      throw Exception('Errore nel caricamento dei dati: $e');
+    }
+  }
+
+  Future<Map<String, int>> getSizeDistribution() async {
+    try {
+      final response = await supabase.from('snowglobes').select('size');
+
+      final data = response as List<dynamic>;
+      final Map<String, int> sizeCounts = {};
+      for (final item in data) {
+        final size = item['size'] as String?;
+        if (size == null) continue;
+        sizeCounts[size] = (sizeCounts[size] ?? 0) + 1;
+      }
+      return sizeCounts;
+    } catch (e) {
+      throw Exception('Errore nel caricamento dei dati: $e');
+    }
+  }
+
+  Future<Map<String, int>> getShapeDistribution() async {
+    try {
+      final response = await supabase.from('snowglobes').select('shape');
+
+      final data = response as List<dynamic>;
+      final Map<String, int> shapeCounts = {};
+      for (final item in data) {
+        final shape = item['shape'] as String?;
+        if (shape == null) continue;
+        shapeCounts[shape] = (shapeCounts[shape] ?? 0) + 1;
+      }
+      return shapeCounts;
+    } catch (e) {
+      throw Exception('Errore nel caricamento dei dati: $e');
+    }
   }
 }

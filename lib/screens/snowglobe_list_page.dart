@@ -64,56 +64,166 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
     });
   }
 
-  // Change the sort field
-  void _changeSortField(String sortField) {
-    setState(() {
-      _currentSortField = sortField;
-      _snowglobes.clear();
-      _currentPage = 0;
-    });
-    _loadMoreSnowglobes();
-  }
-
-  // Change the sort ordering
-  void _changeOrdering(String ordering) {
-    setState(() {
-      _currentOrdering = ordering;
-      _snowglobes.clear();
-      _currentPage = 0;
-    });
-    _loadMoreSnowglobes();
-  }
-
-  // Helper method to check if any filter is applied
-  bool _anyFilterApplied() {
-    return _filters.values.any((value) => value.isNotEmpty) ||
-        (_startDate != null && _endDate != null);
-  }
-
-  // Helper method to generate active filters summary
-  String _activeFiltersSummary() {
-    List<String> filtersList = [];
-    if (_filters['code']!.isNotEmpty) {
-      filtersList.add("Code: ${_filters['code']}");
-    }
-    if (_filters['shape']!.isNotEmpty) {
-      filtersList.add("Shape: ${_filters['shape']}");
-    }
-    if (_filters['size']!.isNotEmpty) {
-      filtersList.add("Size: ${_filters['size']}");
-    }
-    if (_filters['country']!.isNotEmpty) {
-      filtersList.add("Country: ${_filters['country']}");
-    }
-    if (_filters['city']!.isNotEmpty) {
-      filtersList.add("City: ${_filters['city']}");
-    }
-    if (_startDate != null && _endDate != null) {
-      filtersList.add(
-        "Date: ${_formatDate(_startDate)} - ${_formatDate(_endDate)}",
-      );
-    }
-    return filtersList.join(", ");
+  // Change the sort field and ordering
+  void _showSortDialog() {
+    // Variabili temporanee per tenere traccia delle modifiche nella dialog
+    String tempSortField = _currentSortField;
+    String tempOrdering = _currentOrdering;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: Text('Sort by'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  title: Text('Date'),
+                  trailing: Radio<String>(
+                    value: 'date',
+                    groupValue: tempSortField,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          tempSortField = value;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                ListTile(
+                  title: Text('Code'),
+                  trailing: Radio<String>(
+                    value: 'code',
+                    groupValue: tempSortField,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          tempSortField = value;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                ListTile(
+                  title: Text('Shape'),
+                  trailing: Radio<String>(
+                    value: 'shape',
+                    groupValue: tempSortField,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          tempSortField = value;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                ListTile(
+                  title: Text('Size'),
+                  trailing: Radio<String>(
+                    value: 'size',
+                    groupValue: tempSortField,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          tempSortField = value;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                ListTile(
+                  title: Text('Country'),
+                  trailing: Radio<String>(
+                    value: 'country',
+                    groupValue: tempSortField,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          tempSortField = value;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                ListTile(
+                  title: Text('City'),
+                  trailing: Radio<String>(
+                    value: 'city',
+                    groupValue: tempSortField,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          tempSortField = value;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton.icon(
+                      icon: Icon(Icons.arrow_upward),
+                      label: Text('Ascending'),
+                      onPressed: () {
+                        setDialogState(() {
+                          tempOrdering = 'asc';
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: tempOrdering == 'asc'
+                            ? Colors.deepPurpleAccent.withOpacity(0.2)
+                            : null,
+                      ),
+                    ),
+                    TextButton.icon(
+                      icon: Icon(Icons.arrow_downward),
+                      label: Text('Descending'),
+                      onPressed: () {
+                        setDialogState(() {
+                          tempOrdering = 'desc';
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: tempOrdering == 'desc'
+                            ? Colors.deepPurpleAccent.withOpacity(0.2)
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _currentSortField = tempSortField;
+                    _currentOrdering = tempOrdering;
+                    _snowglobes.clear();
+                    _currentPage = 0;
+                  });
+                  Navigator.of(context).pop();
+                  _loadMoreSnowglobes();
+                },
+                child: Text('Apply'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   // Show dialog for filters including date range
@@ -135,282 +245,286 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
       text: _filters['city'],
     );
 
+    // Variabili temporanee per date
+    DateTime? tempStartDate = _startDate;
+    DateTime? tempEndDate = _endDate;
+
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Filter Snowglobes'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(
-                  controller: codeController,
-                  decoration: InputDecoration(labelText: 'Code'),
-                ),
-                TextField(
-                  controller: shapeController,
-                  decoration: InputDecoration(labelText: 'Shape'),
-                ),
-                TextField(
-                  controller: sizeController,
-                  decoration: InputDecoration(labelText: 'Size'),
-                ),
-                TextField(
-                  controller: countryController,
-                  decoration: InputDecoration(labelText: 'Country'),
-                ),
-                TextField(
-                  controller: cityController,
-                  decoration: InputDecoration(labelText: 'City'),
-                ),
-                SizedBox(height: 8),
-                OutlinedButton.icon(
-                  icon: Icon(Icons.date_range),
-                  label: Text(
-                    _startDate == null || _endDate == null
-                        ? 'Filter by date range'
-                        : '${_formatDate(_startDate)} - ${_formatDate(_endDate)}',
+      builder: (BuildContext dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: Text('Filter Snowglobes'),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: codeController,
+                    decoration: InputDecoration(labelText: 'Code'),
                   ),
-                  onPressed: () async {
-                    final DateTimeRange? picked = await showDateRangePicker(
-                      context: context,
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                      initialDateRange:
-                          _startDate != null && _endDate != null
-                              ? DateTimeRange(
-                                start: _startDate!,
-                                end: _endDate!,
-                              )
-                              : null,
-                    );
-                    if (picked != null) {
-                      setState(() {
-                        _startDate = picked.start;
-                        _endDate = picked.end;
-                      });
-                    }
-                  },
-                ),
-                if (_startDate != null || _endDate != null)
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _startDate = null;
-                        _endDate = null;
-                      });
+                  TextField(
+                    controller: shapeController,
+                    decoration: InputDecoration(labelText: 'Shape'),
+                  ),
+                  TextField(
+                    controller: sizeController,
+                    decoration: InputDecoration(labelText: 'Size'),
+                  ),
+                  TextField(
+                    controller: countryController,
+                    decoration: InputDecoration(labelText: 'Country'),
+                  ),
+                  TextField(
+                    controller: cityController,
+                    decoration: InputDecoration(labelText: 'City'),
+                  ),
+                  SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    icon: Icon(Icons.date_range),
+                    label: Text(
+                      tempStartDate == null || tempEndDate == null
+                          ? 'Filter by date range'
+                          : '${_formatDate(tempStartDate)} - ${_formatDate(tempEndDate)}',
+                    ),
+                    onPressed: () async {
+                      final DateTimeRange? picked = await showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                        initialDateRange:
+                            tempStartDate != null && tempEndDate != null
+                                ? DateTimeRange(
+                                  start: tempStartDate!,
+                                  end: tempEndDate!,
+                                )
+                                : null,
+                      );
+                      if (picked != null) {
+                        setDialogState(() {
+                          tempStartDate = picked.start;
+                          tempEndDate = picked.end;
+                        });
+                      }
                     },
-                    child: Text('Clear date filter'),
                   ),
-              ],
+                  if (tempStartDate != null || tempEndDate != null)
+                    TextButton(
+                      onPressed: () {
+                        setDialogState(() {
+                          tempStartDate = null;
+                          tempEndDate = null;
+                        });
+                      },
+                      child: Text('Clear date filter'),
+                    ),
+                ],
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _filters['code'] = codeController.text;
-                  _filters['shape'] = shapeController.text;
-                  _filters['size'] = sizeController.text;
-                  _filters['country'] = countryController.text;
-                  _filters['city'] = cityController.text;
-                  _snowglobes.clear();
-                  _currentPage = 0;
-                });
-                Navigator.of(context).pop();
-                _loadMoreSnowglobes();
-              },
-              child: Text('Apply'),
-            ),
-          ],
-        );
-      },
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Resetta tutti i filtri
+                  codeController.clear();
+                  shapeController.clear();
+                  sizeController.clear();
+                  countryController.clear();
+                  cityController.clear();
+                  setDialogState(() {
+                    tempStartDate = null;
+                    tempEndDate = null;
+                  });
+                },
+                child: Text('Clear All'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _filters['code'] = codeController.text;
+                    _filters['shape'] = shapeController.text;
+                    _filters['size'] = sizeController.text;
+                    _filters['country'] = countryController.text;
+                    _filters['city'] = cityController.text;
+                    _startDate = tempStartDate;
+                    _endDate = tempEndDate;
+                    _snowglobes.clear();
+                    _currentPage = 0;
+                  });
+                  Navigator.of(context).pop();
+                  _loadMoreSnowglobes();
+                },
+                child: Text('Apply'),
+              ),
+            ],
+          );
+        }
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Sorting and filter controls
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center, 
-            children: [
-              DropdownButton<String>(
-                value: _currentSortField,
-                items: [
-                  DropdownMenuItem(child: Text("Date"), value: "date"),
-                  DropdownMenuItem(child: Text("Code"), value: "code"),
-                  DropdownMenuItem(child: Text("Shape"), value: "shape"),
-                  DropdownMenuItem(child: Text("Size"), value: "size"),
-                  DropdownMenuItem(child: Text("Country"), value: "country"),
-                  DropdownMenuItem(child: Text("City"), value: "city"),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    _changeSortField(value);
-                  }
-                },
-              ),
-              SizedBox(width: 16),
-              DropdownButton<String>(
-                value: _currentOrdering,
-                items: [
-                  DropdownMenuItem(child: Text("Descending"), value: "desc"),
-                  DropdownMenuItem(child: Text("Ascending"), value: "asc"),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    _changeOrdering(value);
-                  }
-                },
-              ),
-              SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: _showFilterDialog,
-                child: Text('Filters'),
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('SnowGlobe Collection'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.filter_alt),
+            onPressed: _showFilterDialog,
+            tooltip: 'Filter',
+            color: Colors.deepPurpleAccent,
           ),
-        ),
-        // Active filters summary
-        if (_anyFilterApplied())
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "Active Filters: ${_activeFiltersSummary()}",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontStyle: FontStyle.italic),
-            ),
+          IconButton(
+            icon: Icon(Icons.sort),
+            onPressed: _showSortDialog,
+            tooltip: 'Sort',
+            color: Colors.deepPurpleAccent,
           ),
-        Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            itemCount: _snowglobes.length + (_isLoading ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index < _snowglobes.length) {
-                final snowglobe = _snowglobes[index];
-                return Card(
-                  margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12.0),
-                        child:
-                            (snowglobe.imageUrl != null &&
-                                    snowglobe.imageUrl!.isNotEmpty)
-                                ? Image.network(
-                                  snowglobe.imageUrl!,
-                                  width: double.infinity,
-                                  height: 400,
-                                  fit: BoxFit.cover,
-                                )
-                                : Container(
-                                  width: double.infinity,
-                                  height: 200,
-                                  color: Colors.grey,
-                                  child: Center(
-                                    child: Text(
-                                      'No image available',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
+        ],
+      ),
+      body: _snowglobes.isEmpty && !_isLoading
+          ? Center(
+              child: Text(
+                'No snowglobes found',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          : ListView.builder(
+              controller: _scrollController,
+              itemCount: _snowglobes.length + (_isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index < _snowglobes.length) {
+                  final snowglobe = _snowglobes[index];
+                  return Container(
+                    margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.0),
+                      gradient: LinearGradient(
+                        //colors: [Colors.deepPurple, Color.fromARGB(255, 28, 28, 28)],
+                        colors: [Color.fromARGB(255, 28, 28, 28), Color.fromARGB(255, 28, 28, 28)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Name displayed in large centered text
-                            Center(
-                              child: Text(
-                                snowglobe.name ?? snowglobe.code,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                    ),
+                    child: Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12.0),
+                          child:
+                              (snowglobe.imageUrl != null &&
+                                      snowglobe.imageUrl!.isNotEmpty)
+                                  ? Image.network(
+                                      snowglobe.imageUrl!,
+                                      width: double.infinity,
+                                      height: 400,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Container(
+                                      width: double.infinity,
+                                      height: 200,
+                                      color: Colors.grey,
+                                      child: Center(
+                                        child: Text(
+                                          'No image available',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Nome
+                              Center(
+                                child: Text(
+                                  snowglobe.name ?? snowglobe.code,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 8),
-                            // First row: Date and Code
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Date: ${snowglobe.date != null ? _formatDate(snowglobe.date) : "Unknown"}',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    'Code: ${snowglobe.code}',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 4),
-                            // Second row: Shape and Size
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Shape: ${snowglobe.shape}',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    'Size: ${snowglobe.size}',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 4),
-                            // Place row (only if  country or city are available)
-                            if ((snowglobe.country != null &&
-                                    snowglobe.country!.isNotEmpty) ||
-                                (snowglobe.city != null &&
-                                    snowglobe.city!.isNotEmpty))
+                              SizedBox(height: 8),
+                              // Data e Codice
                               Row(
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Place: ${snowglobe.city}, ${snowglobe.country}',
+                                      'Date: ${snowglobe.date != null ? _formatDate(snowglobe.date) : "Unknown"}',
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      'Code: ${snowglobe.code}',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ],
                               ),
-                          ],
+                              SizedBox(height: 4),
+                              // Forma e Dimensione
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Shape: ${snowglobe.shape}',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      'Size: ${snowglobe.size}',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 4),
+                              // Luogo (se presente)
+                              if ((snowglobe.country != null &&
+                                      snowglobe.country!.isNotEmpty) ||
+                                  (snowglobe.city != null &&
+                                      snowglobe.city!.isNotEmpty))
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Place: ${snowglobe.city ?? ""}, ${snowglobe.country ?? ""}',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-            },
-          ),
-        ),
-      ],
+                      ],
+                    ),
+                  );
+                } else {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+              },
+            ),
     );
   }
-
   // Format the date in a readable format
   String _formatDate(DateTime? date) {
     if (date == null) return '';
