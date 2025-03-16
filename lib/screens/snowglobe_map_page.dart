@@ -30,21 +30,43 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
     });
   }
 
-  // Map year to a specific color
+  // List of at least 30 colors for markers
+  final List<Color> _markerColors = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.teal,
+    Colors.brown,
+    Colors.pink,
+    Colors.indigo,
+    Colors.cyan,
+    Colors.amber,
+    Colors.lime,
+    Colors.deepOrange,
+    Colors.deepPurple,
+    Colors.lightBlue,
+    Colors.lightGreen,
+    Colors.yellow,
+    Colors.grey,
+    Colors.blueGrey,
+    Colors.redAccent,
+    Colors.blueAccent,
+    Colors.greenAccent,
+    Colors.orangeAccent,
+    Colors.purpleAccent,
+    Colors.tealAccent,
+    Colors.indigoAccent,
+    Colors.cyanAccent,
+    Colors.amberAccent,
+    Colors.deepOrangeAccent,
+    Colors.lightGreenAccent,
+  ];
+
+  // Get color based on year using modulus of the color list length
   Color _getColorForYear(int year) {
-    List<Color> colors = [
-      Colors.red,
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.teal,
-      Colors.brown,
-      Colors.pink,
-      Colors.indigo,
-      Colors.cyan,
-    ];
-    return colors[year % colors.length];
+    return _markerColors[year % _markerColors.length];
   }
 
   // Format date for display
@@ -59,34 +81,34 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
       return Center(child: CircularProgressIndicator());
     }
 
-    List<Marker> markers = [];
+    List<Marker> pinMarkers = [];
+    List<Marker> tooltipMarkers = [];
 
-    // Filter valid snowglobes
-    List<Snowglobe> validSnowglobes =
-        _snowglobes
-            .where((s) => s.latitude != null && s.longitude != null)
-            .toList();
+    // Filter snowglobes with valid coordinates
+    List<Snowglobe> validSnowglobes = _snowglobes
+        .where((s) => s.latitude != null && s.longitude != null)
+        .toList();
 
-    // Create markers
     for (int i = 0; i < validSnowglobes.length; i++) {
       Snowglobe snowglobe = validSnowglobes[i];
-      int year = snowglobe.date?.year ?? DateTime.now().year;
       bool isSelected = _selectedMarkerIndex == i;
 
-      // Add tooltip as a separate marker slightly above the pin location
+      // Determine marker color:
+      // if the snowglobe has no date, use black, otherwise use the color based on the year.
+      Color markerColor = (snowglobe.date == null)
+          ? Colors.black
+          : _getColorForYear(snowglobe.date!.year);
+
+      // Tooltip marker: will be displayed on top of everything when selected
       if (isSelected) {
-        // Add tooltip - adjust position to be above the pin
-        markers.add(
+        tooltipMarkers.add(
           Marker(
-            point: LatLng(
-              snowglobe.latitude!, // Move slightly up on the map
-              snowglobe.longitude!,
-            ),
+            point: LatLng(snowglobe.latitude!, snowglobe.longitude!),
             width: 160,
             height: 70,
             alignment: Alignment.bottomCenter,
             child: Transform.translate(
-              offset: Offset(0, -90), // Sposta il box 20 pixel verso l'alto
+              offset: Offset(0, -90), // Move tooltip above the pin
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -125,8 +147,8 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
         );
       }
 
-      // Add the pin marker
-      markers.add(
+      // Pin marker
+      pinMarkers.add(
         Marker(
           point: LatLng(snowglobe.latitude!, snowglobe.longitude!),
           width: 40,
@@ -139,7 +161,7 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
             },
             child: Icon(
               Icons.location_on,
-              color: _getColorForYear(year),
+              color: markerColor,
               size: 40,
             ),
           ),
@@ -147,31 +169,37 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
       );
     }
 
-    LatLng initialCenter =
-        validSnowglobes.isNotEmpty
-            ? LatLng(
-              validSnowglobes.first.latitude!,
-              validSnowglobes.first.longitude!,
-            )
-            : LatLng(0, 0);
+    LatLng initialCenter = validSnowglobes.isNotEmpty
+        ? LatLng(validSnowglobes.first.latitude!, validSnowglobes.first.longitude!)
+        : LatLng(0, 0);
 
     return FlutterMap(
       options: MapOptions(
         initialCenter: initialCenter,
         initialZoom: 5.0,
         onTap: (_, __) {
-          // Close tooltip when tapping on the map
+          // Deselect marker on map tap
           setState(() {
             _selectedMarkerIndex = null;
           });
         },
       ),
       children: [
+        // Possible map styles (Tile providers):
+        // - OpenStreetMap Standard: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        // - OpenStreetMap Humanitarian: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+        // - Stamen Toner: "https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"
+        // - Stamen Watercolor: "https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+        // - CartoDB Positron: "https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+        // - CartoDB Dark Matter: "https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
         TileLayer(
-          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          urlTemplate: "https://cartodb-basemaps-a.global.ssl.fastly.net/spotify_dark/{z}/{x}/{y}.png",
           subdomains: ['a', 'b', 'c'],
         ),
-        MarkerLayer(markers: markers),
+        // Pin markers layer
+        MarkerLayer(markers: pinMarkers),
+        // Tooltip markers layer (always on top)
+        MarkerLayer(markers: tooltipMarkers),
       ],
     );
   }
