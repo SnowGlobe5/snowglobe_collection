@@ -1,15 +1,30 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'credentials.dart';
 import 'screens/tabbed_home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inizializza Supabase (sostituisci URL e anonKey con i tuoi valori)
   await Supabase.initialize(
-    url: 'https://lgnkyhsdymwjxtjmimyi.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxnbmt5aHNkeW13anh0am1pbXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNjc0MjUsImV4cCI6MjA1NzY0MzQyNX0.OtYeEWlRVMwClIUZ8CUxZOrFiRYsokKjs-DW_MT8Pww',
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
   );
+
+  // Autenticazione automatica con email e password
+  final authResponse = await Supabase.instance.client.auth.signInWithPassword(
+    email: userEmail,
+    password: userPassword,
+  );
+
+  if (authResponse.user == null) {
+    // Se non viene restituito un utente, qualcosa è andato storto.
+    print("Errore di autenticazione: utente non autenticato.");
+    // Gestisci l'errore in modo appropriato, ad esempio terminando l'app oppure mostrando un messaggio
+  } else {
+    print("Autenticazione avvenuta con successo: ${authResponse.user!.email}");
+  }
 
   runApp(MyApp());
 }
@@ -21,7 +36,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Snowglobe Collection',
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Color(0xFF121212), // Dark background
+        scaffoldBackgroundColor: Color(0xFF121212),
         colorScheme: ColorScheme.dark(
           primary: Colors.deepPurpleAccent,
           secondary: Colors.deepPurple,

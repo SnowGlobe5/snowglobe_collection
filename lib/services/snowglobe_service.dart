@@ -145,4 +145,39 @@ class SnowglobeService {
       throw Exception('Errore nel caricamento dei dati: $e');
     }
   }
+
+  Future<Snowglobe?> insertSnowglobe({
+    required String name,
+    required String size,
+    DateTime? date,
+    required String code,
+    required String shape,
+    String? country,
+    String? city,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final response = await supabase.from('snowglobes').insert({
+      'name': name,
+      'size': size,
+      'date': date?.toIso8601String(),
+      'code': code,
+      'shape': shape,
+      'country': country,
+      'city': city,
+      'latitude': latitude,
+      'longitude': longitude,
+      'image_url': null, // Verrà aggiornato dopo il caricamento dell'immagine
+    });
+
+    if (response == null || response.error != null) {
+      throw Exception('Errore nell\'inserimento: ${response?.error?.message}');
+    }
+
+    final data = response.data;
+    if (data != null && data is List && data.isNotEmpty) {
+      return Snowglobe.fromMap(data[0] as Map<String, dynamic>);
+    }
+    return null;
+  }
 }

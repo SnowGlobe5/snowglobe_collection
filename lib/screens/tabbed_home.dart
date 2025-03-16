@@ -1,7 +1,9 @@
+// lib/screens/tabbed_home.dart
 import 'package:flutter/material.dart';
 import 'snowglobe_list_page.dart';
 import 'snowglobe_map_page.dart';
 import 'snowglobe_stats_page.dart';
+import 'snowglobe_insertion_page.dart';
 
 class TabbedHome extends StatefulWidget {
   @override
@@ -24,8 +26,11 @@ class _TabbedHomeState extends State<TabbedHome> {
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
               onPressed: () {
-                // Qui puoi aggiungere il codice per l'inserimento
-                print('Inserimento stub attivato');
+                // Naviga alla pagina di inserimento
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SnowglobeInsertionPage()),
+                );
               },
               child: Icon(Icons.add),
             )
