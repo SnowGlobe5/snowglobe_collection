@@ -1,12 +1,12 @@
 class Snowglobe {
-  final String id;
+  final int id;
   final String name;
   final String size;
-  final DateTime date;
+  final DateTime? date;
   final String code;
   final String shape;
-  final String country;
-  final String city;
+  final String? country;
+  final String? city;
   final double? latitude;
   final double? longitude;
   final String? imageUrl;
@@ -15,11 +15,11 @@ class Snowglobe {
     required this.id,
     required this.name,
     required this.size,
-    required this.date,
+    this.date,
     required this.code,
     required this.shape,
-    required this.country,
-    required this.city,
+    this.country,
+    this.city,
     this.latitude,
     this.longitude,
     this.imageUrl,
@@ -30,13 +30,13 @@ class Snowglobe {
       id: map['id'],
       name: map['name'],
       size: map['size'],
-      date: DateTime.parse(map['date']),
+      date: map['date'] != null ? DateTime.tryParse(map['date']) : null,
       code: map['code'],
       shape: map['shape'],
       country: map['country'] ?? '',
       city: map['city'] ?? '',
-      latitude: map['latitude'],
-      longitude: map['longitude'],
+      latitude: map['latitude'] != null ? (map['latitude'] as num).toDouble() : null,
+      longitude: map['longitude'] != null ? (map['longitude'] as num).toDouble() : null,
       imageUrl: map['image_url'],
     );
   }

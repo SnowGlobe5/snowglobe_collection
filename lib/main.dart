@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:snowglobe_collection/models/snowglobe.dart';  // Importa la classe Snowglobe
-import 'package:snowglobe_collection/screens/home_page.dart';
-import 'package:snowglobe_collection/screens/map_page.dart';
+import 'screens/tabbed_home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inizializza Supabase
+  // Inizializza Supabase (sostituisci URL e anonKey con i tuoi valori)
   await Supabase.initialize(
-    url: 'https://<your-project-ref>.supabase.co', // Sostituisci con il tuo URL di Supabase
-    anonKey: '<your-anon-key>', // Sostituisci con la tua chiave anonima
+    url: 'https://lgnkyhsdymwjxtjmimyi.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxnbmt5aHNkeW13anh0am1pbXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNjc0MjUsImV4cCI6MjA1NzY0MzQyNX0.OtYeEWlRVMwClIUZ8CUxZOrFiRYsokKjs-DW_MT8Pww',
   );
 
   runApp(MyApp());
@@ -21,17 +19,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Snowglobe Collection',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      theme: ThemeData.dark().copyWith(
+        primaryColor: Colors.deepPurple,
+        // Se l'accentColor non viene più usato, puoi utilizzare colorScheme
+        colorScheme: ColorScheme.dark(
+          primary: Colors.deepPurple,
+        ),
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.black,
+        ),
       ),
-      // Home page principale
-      home: HomePage(),
-      // Definisci le rotte per navigare nelle schermate
-      routes: {
-        '/map': (context) => MapPage(
-              snowglobe: ModalRoute.of(context)?.settings.arguments as Snowglobe,
-            ),
-      },
+      home: TabbedHome(),
     );
   }
 }
