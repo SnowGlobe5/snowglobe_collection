@@ -4,7 +4,7 @@ import 'package:snowglobe_collection/models/snowglobe.dart';
 class SnowglobeService {
   final supabase = Supabase.instance.client;
 
-  // Retrieves snowglobes with pagination, sorting, and filters
+  // Retrieves snowglobes with pagination, sorting, and filters.
   Future<List<Snowglobe>> fetchSnowglobes({
     required int offset,
     required int limit,
@@ -14,17 +14,17 @@ class SnowglobeService {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    // Start with the base query
+    // Start with the base query.
     var query = supabase.from('snowglobes').select();
 
-    // Apply date range filter if provided
+    // Apply date range filter if provided.
     if (startDate != null) {
-      // Filter for dates greater than or equal to startDate
+      // Filter for dates greater than or equal to startDate.
       query = query.gte('date', startDate.toIso8601String());
     }
 
     if (endDate != null) {
-      // Filter for dates less than or equal to endDate (end of day)
+      // Filter for dates less than or equal to endDate (end of day).
       DateTime endOfDay = DateTime(
         endDate.year,
         endDate.month,
@@ -36,29 +36,29 @@ class SnowglobeService {
       query = query.lte('date', endOfDay.toIso8601String());
     }
 
-    // Apply other filters if provided (case-insensitive partial match)
+    // Apply other filters if provided (case-insensitive partial match).
     filters.forEach((field, value) {
       if (value.isNotEmpty && field != 'date') {
-        // Skip date filter as we handle it separately
+        // Skip date filter since it's handled separately.
         query = query.filter(field, 'ilike', '%$value%');
       }
     });
 
-    // Apply sorting
+    // Apply sorting.
     bool ascending = sortOrder.toLowerCase() == 'asc';
 
-    // Apply pagination and sorting in the final execution
+    // Apply pagination and sorting in the final query.
     final data = await query
         .order(sortField, ascending: ascending)
         .range(offset, offset + limit - 1);
 
-    // Supabase will throw an exception if something goes wrong
+    // Supabase will throw an exception if something goes wrong.
     return (data as List<dynamic>)
         .map((item) => Snowglobe.fromMap(item as Map<String, dynamic>))
         .toList();
   }
 
-  // Retrieves all snowglobes (useful for the map)
+  // Retrieves all snowglobes (useful for the map).
   Future<List<Snowglobe>> fetchAllSnowglobes() async {
     final data = await supabase
         .from('snowglobes')
@@ -88,7 +88,7 @@ class SnowglobeService {
       }
       return yearCounts;
     } catch (e) {
-      throw Exception('Errore nel caricamento dei dati: $e');
+      throw Exception('Error loading data: $e');
     }
   }
 
@@ -108,7 +108,7 @@ class SnowglobeService {
       }
       return countryCounts;
     } catch (e) {
-      throw Exception('Errore nel caricamento dei dati: $e');
+      throw Exception('Error loading data: $e');
     }
   }
 
@@ -125,7 +125,7 @@ class SnowglobeService {
       }
       return sizeCounts;
     } catch (e) {
-      throw Exception('Errore nel caricamento dei dati: $e');
+      throw Exception('Error loading data: $e');
     }
   }
 
@@ -142,7 +142,7 @@ class SnowglobeService {
       }
       return shapeCounts;
     } catch (e) {
-      throw Exception('Errore nel caricamento dei dati: $e');
+      throw Exception('Error loading data: $e');
     }
   }
 
@@ -157,27 +157,68 @@ class SnowglobeService {
     double? latitude,
     double? longitude,
   }) async {
-    final response = await supabase.from('snowglobes').insert({
-      'name': name,
-      'size': size,
-      'date': date?.toIso8601String(),
-      'code': code,
-      'shape': shape,
-      'country': country,
-      'city': city,
-      'latitude': latitude,
-      'longitude': longitude,
-      'image_url': null, // Verrà aggiornato dopo il caricamento dell'immagine
-    });
+    try {
+      final data = await supabase.from('snowglobes').insert({
+        'name': name,
+        'size': size,
+        'date': date?.toIso8601String(),
+        'code': code,
+        'shape': shape,
+        'country': country,
+        'city': city,
+        'latitude': latitude,
+        'longitude': longitude,
+        'image_url': null, // Will be updated after image upload.
+      }).select() as List<dynamic>;
 
-    if (response == null || response.error != null) {
-      throw Exception('Errore nell\'inserimento: ${response?.error?.message}');
+      if (data.isNotEmpty) {
+        return Snowglobe.fromMap(data[0] as Map<String, dynamic>);
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Error inserting record: $e');
     }
+  }
 
-    final data = response.data;
-    if (data != null && data is List && data.isNotEmpty) {
-      return Snowglobe.fromMap(data[0] as Map<String, dynamic>);
+  // Updates an existing snowglobe record.
+  Future<bool> updateSnowglobe({
+    required int id,
+    required String name,
+    required String size,
+    DateTime? date,
+    required String code,
+    required String shape,
+    String? country,
+    String? city,
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      final data = await supabase.from('snowglobes').update({
+        'name': name,
+        'size': size,
+        'date': date?.toIso8601String(),
+        'code': code,
+        'shape': shape,
+        'country': country,
+        'city': city,
+        'latitude': latitude,
+        'longitude': longitude,
+      }).eq('id', id).select() as List<dynamic>;
+
+      return data.isNotEmpty;
+    } catch (e) {
+      throw Exception('Error updating record: $e');
     }
-    return null;
+  }
+
+  // Deletes a snowglobe record by its ID.
+  Future<bool> deleteSnowglobe(int id) async {
+    try {
+      await supabase.from('snowglobes').delete().eq('id', id);
+      return true;
+    } catch (e) {
+      throw Exception('Error deleting record: $e');
+    }
   }
 }

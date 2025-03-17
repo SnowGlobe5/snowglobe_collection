@@ -27,7 +27,7 @@ class CustomHorizontalBarChart extends StatelessWidget {
     // Trova il valore massimo per calcolare la lunghezza proporzionale della barra
     int maxValue = data.values.fold(0, (prev, element) => element > prev ? element : prev);
     // Larghezza fissa per la label e altezza per ogni riga (barra)
-    double labelWidth = 100;
+    double labelWidth = 105;
     double rowHeight = 40;
 
     return Container(
@@ -72,7 +72,7 @@ class CustomHorizontalBarChart extends StatelessWidget {
                           alignment: Alignment.centerRight,
                           child: Text(
                             key,
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                            style: TextStyle(color: Colors.white, fontSize: 12),
                           ),
                         ),
                         SizedBox(width: 8),

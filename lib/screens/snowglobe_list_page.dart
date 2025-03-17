@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:snowglobe_collection/models/snowglobe.dart';
 import 'package:snowglobe_collection/services/snowglobe_service.dart';
+import 'package:snowglobe_collection/screens/snowglobe_insertion_page.dart';
 
 class SnowglobeListPage extends StatefulWidget {
   @override
@@ -30,6 +31,9 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
     'country': '',
     'city': '',
   };
+
+  // Tap counts for each snowglobe id
+  Map<int, int> _tapCounts = {};
 
   @override
   void initState() {
@@ -64,12 +68,17 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
     });
   }
 
-  // Change the sort field and ordering
+  Future<void> _refreshSnowglobes() async {
+    setState(() {
+      _snowglobes.clear();
+      _currentPage = 0;
+    });
+    await _loadMoreSnowglobes();
+  }
+
   void _showSortDialog() {
-    // Variabili temporanee per tenere traccia delle modifiche nella dialog
     String tempSortField = _currentSortField;
     String tempOrdering = _currentOrdering;
-    
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => StatefulBuilder(
@@ -202,7 +211,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                 },
                 child: Text('Cancel'),
               ),
@@ -214,7 +223,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                     _snowglobes.clear();
                     _currentPage = 0;
                   });
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                   _loadMoreSnowglobes();
                 },
                 child: Text('Apply'),
@@ -226,26 +235,14 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
     );
   }
 
-  // Show dialog for filters including date range
   void _showFilterDialog() {
-    // Controllers for each filter field
-    TextEditingController codeController = TextEditingController(
-      text: _filters['code'],
-    );
-    TextEditingController shapeController = TextEditingController(
-      text: _filters['shape'],
-    );
-    TextEditingController sizeController = TextEditingController(
-      text: _filters['size'],
-    );
-    TextEditingController countryController = TextEditingController(
-      text: _filters['country'],
-    );
-    TextEditingController cityController = TextEditingController(
-      text: _filters['city'],
-    );
+    TextEditingController codeController = TextEditingController(text: _filters['code']);
+    // For shape and size, use dropdowns
+    String tempShape = _filters['shape'] ?? '';
+    String tempSize = _filters['size'] ?? '';
+    TextEditingController countryController = TextEditingController(text: _filters['country']);
+    TextEditingController cityController = TextEditingController(text: _filters['city']);
 
-    // Variabili temporanee per date
     DateTime? tempStartDate = _startDate;
     DateTime? tempEndDate = _endDate;
 
@@ -262,13 +259,36 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                     controller: codeController,
                     decoration: InputDecoration(labelText: 'Code'),
                   ),
-                  TextField(
-                    controller: shapeController,
+                  DropdownButtonFormField<String>(
+                    value: tempShape.isEmpty ? null : tempShape,
+                    items: ['', 'Classic', 'Heart', 'Half Pyramid', 'Other']
+                        .map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value.isEmpty ? 'Any' : value),
+                      );
+                    }).toList(),
                     decoration: InputDecoration(labelText: 'Shape'),
+                    onChanged: (newValue) {
+                      setDialogState(() {
+                        tempShape = newValue ?? '';
+                      });
+                    },
                   ),
-                  TextField(
-                    controller: sizeController,
+                  DropdownButtonFormField<String>(
+                    value: tempSize.isEmpty ? null : tempSize,
+                    items: ['', 'XS', 'S', 'M', 'L', 'XL'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value.isEmpty ? 'Any' : value),
+                      );
+                    }).toList(),
                     decoration: InputDecoration(labelText: 'Size'),
+                    onChanged: (newValue) {
+                      setDialogState(() {
+                        tempSize = newValue ?? '';
+                      });
+                    },
                   ),
                   TextField(
                     controller: countryController,
@@ -291,13 +311,9 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                         context: context,
                         firstDate: DateTime(1900),
                         lastDate: DateTime.now(),
-                        initialDateRange:
-                            tempStartDate != null && tempEndDate != null
-                                ? DateTimeRange(
-                                  start: tempStartDate!,
-                                  end: tempEndDate!,
-                                )
-                                : null,
+                        initialDateRange: tempStartDate != null && tempEndDate != null
+                            ? DateTimeRange(start: tempStartDate!, end: tempEndDate!)
+                            : null,
                       );
                       if (picked != null) {
                         setDialogState(() {
@@ -323,19 +339,19 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                 },
                 child: Text('Cancel'),
               ),
               TextButton(
                 onPressed: () {
-                  // Resetta tutti i filtri
+                  // Clear all filters
                   codeController.clear();
-                  shapeController.clear();
-                  sizeController.clear();
-                  countryController.clear();
-                  cityController.clear();
                   setDialogState(() {
+                    tempShape = '';
+                    tempSize = '';
+                    countryController.clear();
+                    cityController.clear();
                     tempStartDate = null;
                     tempEndDate = null;
                   });
@@ -346,8 +362,8 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                 onPressed: () {
                   setState(() {
                     _filters['code'] = codeController.text;
-                    _filters['shape'] = shapeController.text;
-                    _filters['size'] = sizeController.text;
+                    _filters['shape'] = tempShape;
+                    _filters['size'] = tempSize;
                     _filters['country'] = countryController.text;
                     _filters['city'] = cityController.text;
                     _startDate = tempStartDate;
@@ -355,16 +371,103 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                     _snowglobes.clear();
                     _currentPage = 0;
                   });
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                   _loadMoreSnowglobes();
                 },
                 child: Text('Apply'),
               ),
             ],
           );
-        }
+        },
       ),
     );
+  }
+
+  void _handleCardTap(Snowglobe snowglobe) {
+    int currentCount = _tapCounts[snowglobe.id] ?? 0;
+    currentCount++;
+    _tapCounts[snowglobe.id] = currentCount;
+    if (currentCount >= 5) {
+      // Reset tap count for this record
+      _tapCounts[snowglobe.id] = 0;
+      _showCardOptions(snowglobe);
+    }
+  }
+
+  void _showCardOptions(Snowglobe snowglobe) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: Text('Options'),
+        content: Text('Would you like to modify or delete this record?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              // Delete option
+              _confirmDelete(snowglobe);
+            },
+            child: Text('Delete'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              // Modify option: navigate to insertion screen with record data
+              bool? result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SnowglobeInsertionPage(snowglobe: snowglobe),
+                ),
+              );
+              if (result == true) {
+                _refreshSnowglobes();
+              }
+            },
+            child: Text('Modify'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(Snowglobe snowglobe) {
+    showDialog(
+      context: context,
+      builder: (BuildContext confirmContext) => AlertDialog(
+        title: Text('Confirm Delete'),
+        content: Text('Are you sure you want to delete this record?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(confirmContext).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(confirmContext).pop();
+              bool deleted = await _snowglobeService.deleteSnowglobe(snowglobe.id);
+              if (deleted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Record deleted successfully')),
+                );
+                _refreshSnowglobes();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error deleting record')),
+                );
+              }
+            },
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   @override
@@ -400,119 +503,116 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
               itemBuilder: (context, index) {
                 if (index < _snowglobes.length) {
                   final snowglobe = _snowglobes[index];
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.0),
-                      gradient: LinearGradient(
-                        //colors: [Colors.deepPurple, Color.fromARGB(255, 28, 28, 28)],
-                        colors: [Color.fromARGB(255, 28, 28, 28), Color.fromARGB(255, 28, 28, 28)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                  return GestureDetector(
+                    onTap: () => _handleCardTap(snowglobe),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0),
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 28, 28, 28),
+                            Color.fromARGB(255, 28, 28, 28)
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child:
-                              (snowglobe.imageUrl != null &&
-                                      snowglobe.imageUrl!.isNotEmpty)
-                                  ? Image.network(
-                                      snowglobe.imageUrl!,
-                                      width: double.infinity,
-                                      height: 400,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Container(
-                                      width: double.infinity,
-                                      height: 200,
-                                      color: Colors.grey,
-                                      child: Center(
-                                        child: Text(
-                                          'No image available',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: (snowglobe.imageUrl != null && snowglobe.imageUrl!.isNotEmpty)
+                                ? Image.network(
+                                    snowglobe.imageUrl!,
+                                    width: double.infinity,
+                                    height: 400,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(
+                                    width: double.infinity,
+                                    height: 200,
+                                    color: Colors.grey,
+                                    child: Center(
+                                      child: Text(
+                                        'No image available',
+                                        style: TextStyle(color: Colors.white),
                                       ),
                                     ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Nome
-                              Center(
-                                child: Text(
-                                  snowglobe.name ?? snowglobe.code,
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                  ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Center(
+                                  child: Text(
+                                    snowglobe.name ?? snowglobe.code,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(height: 8),
-                              // Data e Codice
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Date: ${snowglobe.date != null ? _formatDate(snowglobe.date) : "Unknown"}',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      'Code: ${snowglobe.code}',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 4),
-                              // Forma e Dimensione
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Shape: ${snowglobe.shape}',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      'Size: ${snowglobe.size}',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 4),
-                              // Luogo (se presente)
-                              if ((snowglobe.country != null &&
-                                      snowglobe.country!.isNotEmpty) ||
-                                  (snowglobe.city != null &&
-                                      snowglobe.city!.isNotEmpty))
+                                SizedBox(height: 8),
                                 Row(
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        'Place: ${snowglobe.city ?? ""}, ${snowglobe.country ?? ""}',
+                                        'Date: ${snowglobe.date != null ? _formatDate(snowglobe.date) : "Unknown"}',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        'Code: ${snowglobe.code}',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(color: Colors.white),
                                       ),
                                     ),
                                   ],
                                 ),
-                            ],
+                                SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Shape: ${snowglobe.shape}',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        'Size: ${snowglobe.size}',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 4),
+                                if ((snowglobe.country != null && snowglobe.country!.isNotEmpty) ||
+                                    (snowglobe.city != null && snowglobe.city!.isNotEmpty))
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Place: ${snowglobe.city ?? ""}, ${snowglobe.country ?? ""}',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 } else {
@@ -524,11 +624,6 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
               },
             ),
     );
-  }
-  // Format the date in a readable format
-  String _formatDate(DateTime? date) {
-    if (date == null) return '';
-    return '${date.day}/${date.month}/${date.year}';
   }
 
   @override
