@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../colors.dart';
 
 class CustomHorizontalBarChart extends StatelessWidget {
   final Map<String, int> data;
@@ -17,7 +18,7 @@ class CustomHorizontalBarChart extends StatelessWidget {
         padding: EdgeInsets.all(16),
         child: Text(
           'Nessun dato disponibile',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: AppColors.foreground, fontSize: 16),
         ),
       );
     }
@@ -45,7 +46,7 @@ class CustomHorizontalBarChart extends StatelessWidget {
             child: Text(
               title,
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.foreground,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -72,7 +73,7 @@ class CustomHorizontalBarChart extends StatelessWidget {
                           alignment: Alignment.centerRight,
                           child: Text(
                             key,
-                            style: TextStyle(color: Colors.white, fontSize: 12),
+                            style: TextStyle(color: AppColors.foreground, fontSize: 12),
                           ),
                         ),
                         SizedBox(width: 8),
@@ -81,14 +82,14 @@ class CustomHorizontalBarChart extends StatelessWidget {
                           width: barWidth,
                           height: rowHeight,
                           decoration: BoxDecoration(
-                            color: Colors.deepPurpleAccent,
+                            color: AppColors.primary,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Center(
                             child: Text(
                               value.toString(),
                               style: TextStyle(
-                                color: Colors.white,
+                                color: AppColors.foreground,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),

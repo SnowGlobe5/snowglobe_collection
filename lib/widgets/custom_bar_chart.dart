@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:math' as math; // Necessario per la rotazione
+import 'dart:math' as math; 
+import '../colors.dart';
 
 class CustomBarChart extends StatelessWidget {
   final Map<String, int> data;
@@ -35,7 +36,7 @@ class CustomBarChart extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.foreground,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -60,7 +61,7 @@ class CustomBarChart extends StatelessWidget {
       return Center(
         child: Text(
           'Nessun dato disponibile',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: AppColors.foreground, fontSize: 16),
         ),
       );
     }
@@ -75,7 +76,7 @@ class CustomBarChart extends StatelessWidget {
         barRods: [
           BarChartRodData(
             toY: value.toDouble(),
-            color: Colors.deepPurpleAccent,
+            color: AppColors.primary,
             width: 16,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(6),
@@ -86,7 +87,7 @@ class CustomBarChart extends StatelessWidget {
               toY: data.values.isEmpty
                   ? 10
                   : data.values.reduce((a, b) => a > b ? a : b).toDouble(),
-              color: Colors.deepPurpleAccent.withOpacity(0.1),
+              color: AppColors.primary.withOpacity(0.1),
             ),
           ),
         ],
@@ -106,7 +107,7 @@ class CustomBarChart extends StatelessWidget {
                 return BarTooltipItem(
                   rod.toY.toString(),
                   TextStyle(
-                    color: Colors.white,
+                    color: AppColors.foreground,
                     fontWeight: FontWeight.bold,
                   ),
                 );
@@ -127,7 +128,7 @@ class CustomBarChart extends StatelessWidget {
                   if (index < sortedKeys.length) {
                     final label = Text(
                       sortedKeys[index],
-                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      style: TextStyle(color: AppColors.foreground, fontSize: 12),
                     );
                     return SideTitleWidget(
                       meta: meta,
@@ -155,7 +156,7 @@ class CustomBarChart extends StatelessWidget {
                     space: 8,
                     child: Text(
                       value.toInt().toString(),
-                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      style: TextStyle(color: AppColors.foreground, fontSize: 12),
                     ),
                   );
                 },

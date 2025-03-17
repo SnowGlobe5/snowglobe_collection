@@ -4,26 +4,27 @@ import 'package:latlong2/latlong.dart';
 import 'package:snowglobe_collection/models/snowglobe.dart';
 import 'package:snowglobe_collection/services/snowglobe_service.dart';
 import 'package:intl/intl.dart';
+import '../colors.dart';
 
-class SnowglobeMapPage extends StatefulWidget {
+class SnowGlobeMapPage extends StatefulWidget {
   @override
-  _SnowglobeMapPageState createState() => _SnowglobeMapPageState();
+  _SnowGlobeMapPageState createState() => _SnowGlobeMapPageState();
 }
 
-class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
-  final SnowglobeService _snowglobeService = SnowglobeService();
-  List<Snowglobe> _snowglobes = [];
+class _SnowGlobeMapPageState extends State<SnowGlobeMapPage> {
+  final SnowGlobeService _snowglobeService = SnowGlobeService();
+  List<SnowGlobe> _snowglobes = [];
   bool _isLoading = true;
   int? _selectedMarkerIndex;
 
   @override
   void initState() {
     super.initState();
-    _loadSnowglobes();
+    _loadSnowGlobes();
   }
 
-  Future<void> _loadSnowglobes() async {
-    List<Snowglobe> snowglobes = await _snowglobeService.fetchAllSnowglobes();
+  Future<void> _loadSnowGlobes() async {
+    List<SnowGlobe> snowglobes = await _snowglobeService.fetchAllSnowGlobes();
     setState(() {
       _snowglobes = snowglobes;
       _isLoading = false;
@@ -85,12 +86,12 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
     List<Marker> tooltipMarkers = [];
 
     // Filter snowglobes with valid coordinates
-    List<Snowglobe> validSnowglobes = _snowglobes
+    List<SnowGlobe> validSnowGlobes = _snowglobes
         .where((s) => s.latitude != null && s.longitude != null)
         .toList();
 
-    for (int i = 0; i < validSnowglobes.length; i++) {
-      Snowglobe snowglobe = validSnowglobes[i];
+    for (int i = 0; i < validSnowGlobes.length; i++) {
+      SnowGlobe snowglobe = validSnowGlobes[i];
       bool isSelected = _selectedMarkerIndex == i;
 
       // Determine marker color:
@@ -112,7 +113,7 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black87,
+                  color: AppColors.scaffoldBackground,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Column(
@@ -121,7 +122,7 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
                     Text(
                       snowglobe.name ?? "Unnamed",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.foreground,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -130,13 +131,13 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
                     ),
                     Text(
                       "${snowglobe.city ?? ""}, ${snowglobe.country ?? ""}",
-                      style: TextStyle(color: Colors.white, fontSize: 10),
+                      style: TextStyle(color: AppColors.foreground, fontSize: 10),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       _formatDate(snowglobe.date),
-                      style: TextStyle(color: Colors.white, fontSize: 10),
+                      style: TextStyle(color: AppColors.foreground, fontSize: 10),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -169,8 +170,8 @@ class _SnowglobeMapPageState extends State<SnowglobeMapPage> {
       );
     }
 
-    LatLng initialCenter = validSnowglobes.isNotEmpty
-        ? LatLng(validSnowglobes.first.latitude!, validSnowglobes.first.longitude!)
+    LatLng initialCenter = validSnowGlobes.isNotEmpty
+        ? LatLng(validSnowGlobes.first.latitude!, validSnowGlobes.first.longitude!)
         : LatLng(0, 0);
 
     return FlutterMap(

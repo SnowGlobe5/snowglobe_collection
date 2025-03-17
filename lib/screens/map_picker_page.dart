@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
+import '../colors.dart';
 
 class MapPickerPage extends StatefulWidget {
   @override
@@ -86,7 +87,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                         point: _selectedPosition!,
                         child: Icon(
                           Icons.location_on,
-                          color: Colors.deepPurpleAccent,
+                          color: AppColors.primary,
                           size: 40,
                         ),
                       ),

@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
+import 'colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'credentials.dart';
 import 'screens/tabbed_home.dart';
@@ -34,25 +35,25 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Snowglobe Collection',
+      title: 'SnowGlobe Collection',
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Color(0xFF121212),
+        scaffoldBackgroundColor: AppColors.scaffoldBackground,
         colorScheme: ColorScheme.dark(
-          primary: Colors.deepPurpleAccent,
-          secondary: Colors.deepPurple,
+          primary: AppColors.primary,
+          secondary: AppColors.secondary,
         ),
         appBarTheme: AppBarTheme(
-          backgroundColor: Color(0xFF1E1E1E),
+          backgroundColor: AppColors.appBarBackground,
           titleTextStyle: TextStyle(
-            color: Colors.white,
+            color: AppColors.foreground,
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF1E1E1E),
-          selectedItemColor: Colors.deepPurpleAccent,
-          unselectedItemColor: Colors.grey,
+          backgroundColor: AppColors.appBarBackground,
+          selectedItemColor: AppColors.selectedItem,
+          unselectedItemColor: AppColors.unselectedItem,
         ),
       ),
       home: TabbedHome(),

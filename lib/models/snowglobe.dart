@@ -1,4 +1,4 @@
-class Snowglobe {
+class SnowGlobe {
   final int id;
   final String name;
   final String size;
@@ -11,7 +11,7 @@ class Snowglobe {
   final double? longitude;
   final String? imageUrl;
 
-  Snowglobe({
+  SnowGlobe({
     required this.id,
     required this.name,
     required this.size,
@@ -25,8 +25,8 @@ class Snowglobe {
     this.imageUrl,
   });
 
-  factory Snowglobe.fromMap(Map<String, dynamic> map) {
-    return Snowglobe(
+  factory SnowGlobe.fromMap(Map<String, dynamic> map) {
+    return SnowGlobe(
       id: map['id'],
       name: map['name'],
       size: map['size'],

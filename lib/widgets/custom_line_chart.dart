@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../colors.dart';
 
 class CustomLineChart extends StatelessWidget {
   final Map<String, int> data;
@@ -14,7 +15,7 @@ class CustomLineChart extends StatelessWidget {
       return Center(
         child: Text(
           'Nessun dato disponibile',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.foreground),
         ),
       );
     }
@@ -47,7 +48,7 @@ class CustomLineChart extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.foreground,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -72,7 +73,7 @@ class CustomLineChart extends StatelessWidget {
                           final value = touchedSpot.y.toInt();
                           return LineTooltipItem(
                             '$year\n$value',
-                            TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            TextStyle(color: AppColors.foreground, fontSize: 12, fontWeight: FontWeight.bold),
                           );
                         }).toList();
                       },
@@ -82,12 +83,12 @@ class CustomLineChart extends StatelessWidget {
                     LineChartBarData(
                       spots: spots,
                       isCurved: true,
-                      color: Colors.deepPurpleAccent,
+                      color: AppColors.primary,
                       barWidth: 3,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.deepPurpleAccent.withOpacity(0.3),
+                        color: AppColors.primary.withOpacity(0.3),
                       ),
                     )
                   ],
@@ -106,7 +107,7 @@ class CustomLineChart extends StatelessWidget {
                                 angle: -pi / 4, // Rotazione di 45 gradi
                                 child: Text(
                                   value.toInt().toString(),
-                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                  style: TextStyle(color: AppColors.foreground, fontSize: 12),
                                 ),
                               ),
                             );
@@ -125,7 +126,7 @@ class CustomLineChart extends StatelessWidget {
                             space: 8,
                             child: Text(
                               value.toInt().toString(),
-                              style: TextStyle(color: Colors.white, fontSize: 12),
+                              style: TextStyle(color: AppColors.foreground, fontSize: 12),
                             ),
                           );
                         },

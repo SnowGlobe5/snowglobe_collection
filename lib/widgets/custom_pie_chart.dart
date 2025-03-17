@@ -1,6 +1,6 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../colors.dart';
 
 class CustomPieChart extends StatelessWidget {
   final Map<String, int> data;
@@ -19,7 +19,7 @@ class CustomPieChart extends StatelessWidget {
       return Center(
         child: Text(
           'Nessun dato disponibile',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.foreground),
         ),
       );
     }
@@ -56,11 +56,11 @@ class CustomPieChart extends StatelessWidget {
       }
       
       sections.add(PieChartSectionData(
-        color: Colors.deepPurpleAccent.withOpacity(1 - (i * 0.1)),
+        color: AppColors.primary.withOpacity(1 - (i * 0.1)),
         value: entry.value.toDouble(),
         title: label,
         radius: radius,
-        titleStyle: TextStyle(fontSize: 10, color: Colors.white),
+        titleStyle: TextStyle(fontSize: 10, color: AppColors.foreground),
         titlePositionPercentageOffset: offset,
       ));
     }
@@ -81,7 +81,7 @@ class CustomPieChart extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.foreground,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),

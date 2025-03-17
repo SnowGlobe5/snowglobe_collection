@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:snowglobe_collection/models/snowglobe.dart';
 import 'package:snowglobe_collection/services/snowglobe_service.dart';
 import 'package:snowglobe_collection/screens/snowglobe_insertion_page.dart';
+import '../colors.dart';
 
-class SnowglobeListPage extends StatefulWidget {
+class SnowGlobeListPage extends StatefulWidget {
   @override
-  _SnowglobeListPageState createState() => _SnowglobeListPageState();
+  _SnowGlobeListPageState createState() => _SnowGlobeListPageState();
 }
 
-class _SnowglobeListPageState extends State<SnowglobeListPage> {
-  final SnowglobeService _snowglobeService = SnowglobeService();
-  List<Snowglobe> _snowglobes = [];
+class _SnowGlobeListPageState extends State<SnowGlobeListPage> {
+  final SnowGlobeService _snowglobeService = SnowGlobeService();
+  List<SnowGlobe> _snowglobes = [];
   int _currentPage = 0;
   final int _pageSize = 10;
   bool _isLoading = false;
@@ -38,21 +39,21 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
   @override
   void initState() {
     super.initState();
-    _loadMoreSnowglobes();
+    _loadMoreSnowGlobes();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
           !_isLoading) {
-        _loadMoreSnowglobes();
+        _loadMoreSnowGlobes();
       }
     });
   }
 
-  Future<void> _loadMoreSnowglobes() async {
+  Future<void> _loadMoreSnowGlobes() async {
     setState(() {
       _isLoading = true;
     });
-    List<Snowglobe> newSnowglobes = await _snowglobeService.fetchSnowglobes(
+    List<SnowGlobe> newSnowGlobes = await _snowglobeService.fetchSnowGlobes(
       offset: _currentPage * _pageSize,
       limit: _pageSize,
       sortField: _currentSortField,
@@ -62,18 +63,18 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
       endDate: _endDate,
     );
     setState(() {
-      _snowglobes.addAll(newSnowglobes);
+      _snowglobes.addAll(newSnowGlobes);
       _currentPage++;
       _isLoading = false;
     });
   }
 
-  Future<void> _refreshSnowglobes() async {
+  Future<void> _refreshSnowGlobes() async {
     setState(() {
       _snowglobes.clear();
       _currentPage = 0;
     });
-    await _loadMoreSnowglobes();
+    await _loadMoreSnowGlobes();
   }
 
   void _showSortDialog() {
@@ -186,7 +187,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                       },
                       style: TextButton.styleFrom(
                         backgroundColor: tempOrdering == 'asc'
-                            ? Colors.deepPurpleAccent.withOpacity(0.2)
+                            ? AppColors.primary.withOpacity(0.2)
                             : null,
                       ),
                     ),
@@ -200,7 +201,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                       },
                       style: TextButton.styleFrom(
                         backgroundColor: tempOrdering == 'desc'
-                            ? Colors.deepPurpleAccent.withOpacity(0.2)
+                            ? AppColors.primary.withOpacity(0.2)
                             : null,
                       ),
                     ),
@@ -224,7 +225,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                     _currentPage = 0;
                   });
                   Navigator.of(dialogContext).pop();
-                  _loadMoreSnowglobes();
+                  _loadMoreSnowGlobes();
                 },
                 child: Text('Apply'),
               ),
@@ -251,7 +252,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
       builder: (BuildContext dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: Text('Filter Snowglobes'),
+            title: Text('Filter SnowGlobes'),
             content: SingleChildScrollView(
               child: Column(
                 children: [
@@ -372,7 +373,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                     _currentPage = 0;
                   });
                   Navigator.of(dialogContext).pop();
-                  _loadMoreSnowglobes();
+                  _loadMoreSnowGlobes();
                 },
                 child: Text('Apply'),
               ),
@@ -383,7 +384,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
     );
   }
 
-  void _handleCardTap(Snowglobe snowglobe) {
+  void _handleCardTap(SnowGlobe snowglobe) {
     int currentCount = _tapCounts[snowglobe.id] ?? 0;
     currentCount++;
     _tapCounts[snowglobe.id] = currentCount;
@@ -394,7 +395,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
     }
   }
 
-  void _showCardOptions(Snowglobe snowglobe) {
+  void _showCardOptions(SnowGlobe snowglobe) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
@@ -416,11 +417,11 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
               bool? result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SnowglobeInsertionPage(snowglobe: snowglobe),
+                  builder: (context) => SnowGlobeInsertionPage(snowglobe: snowglobe),
                 ),
               );
               if (result == true) {
-                _refreshSnowglobes();
+                _refreshSnowGlobes();
               }
             },
             child: Text('Modify'),
@@ -430,7 +431,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
     );
   }
 
-  void _confirmDelete(Snowglobe snowglobe) {
+  void _confirmDelete(SnowGlobe snowglobe) {
     showDialog(
       context: context,
       builder: (BuildContext confirmContext) => AlertDialog(
@@ -446,12 +447,12 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
           ElevatedButton(
             onPressed: () async {
               Navigator.of(confirmContext).pop();
-              bool deleted = await _snowglobeService.deleteSnowglobe(snowglobe.id);
+              bool deleted = await _snowglobeService.deleteSnowGlobe(snowglobe.id);
               if (deleted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Record deleted successfully')),
                 );
-                _refreshSnowglobes();
+                _refreshSnowGlobes();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error deleting record')),
@@ -480,13 +481,13 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
             icon: Icon(Icons.filter_alt),
             onPressed: _showFilterDialog,
             tooltip: 'Filter',
-            color: Colors.deepPurpleAccent,
+            color: AppColors.primary,
           ),
           IconButton(
             icon: Icon(Icons.sort),
             onPressed: _showSortDialog,
             tooltip: 'Sort',
-            color: Colors.deepPurpleAccent,
+            color: AppColors.primary,
           ),
         ],
       ),
@@ -532,11 +533,11 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                                 : Container(
                                     width: double.infinity,
                                     height: 200,
-                                    color: Colors.grey,
+                                    color: AppColors.unselectedItem,
                                     child: Center(
                                       child: Text(
                                         'No image available',
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(color: AppColors.foreground)
                                       ),
                                     ),
                                   ),
@@ -552,7 +553,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: AppColors.foreground,
                                     ),
                                   ),
                                 ),
@@ -563,14 +564,14 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                                       child: Text(
                                         'Date: ${snowglobe.date != null ? _formatDate(snowglobe.date) : "Unknown"}',
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(color: AppColors.foreground),
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
                                         'Code: ${snowglobe.code}',
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(color: AppColors.foreground),
                                       ),
                                     ),
                                   ],
@@ -582,14 +583,14 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                                       child: Text(
                                         'Shape: ${snowglobe.shape}',
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(color: AppColors.foreground),
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
                                         'Size: ${snowglobe.size}',
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(color: AppColors.foreground),
                                       ),
                                     ),
                                   ],
@@ -603,7 +604,7 @@ class _SnowglobeListPageState extends State<SnowglobeListPage> {
                                         child: Text(
                                           'Place: ${snowglobe.city ?? ""}, ${snowglobe.country ?? ""}',
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(color: Colors.white),
+                                          style: TextStyle(color: AppColors.foreground),
                                         ),
                                       ),
                                     ],

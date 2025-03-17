@@ -11,16 +11,17 @@ import '../services/snowglobe_service.dart';
 import '../services/image_service.dart';
 import 'map_picker_page.dart';
 import '../models/snowglobe.dart';
+import '../colors.dart';
 
-class SnowglobeInsertionPage extends StatefulWidget {
-  final Snowglobe? snowglobe; // If provided, we're editing.
-  SnowglobeInsertionPage({Key? key, this.snowglobe}) : super(key: key);
+class SnowGlobeInsertionPage extends StatefulWidget {
+  final SnowGlobe? snowglobe; // If provided, we're editing.
+  SnowGlobeInsertionPage({Key? key, this.snowglobe}) : super(key: key);
 
   @override
-  _SnowglobeInsertionPageState createState() => _SnowglobeInsertionPageState();
+  _SnowGlobeInsertionPageState createState() => _SnowGlobeInsertionPageState();
 }
 
-class _SnowglobeInsertionPageState extends State<SnowglobeInsertionPage> {
+class _SnowGlobeInsertionPageState extends State<SnowGlobeInsertionPage> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
@@ -42,7 +43,7 @@ class _SnowglobeInsertionPageState extends State<SnowglobeInsertionPage> {
   String _selectedShape =
       "Classic"; // Options: Classic, Heart, Half Pyramid, Other.
 
-  final SnowglobeService _snowglobeService = SnowglobeService();
+  final SnowGlobeService _snowglobeService = SnowGlobeService();
   final ImageService _imageService = ImageService();
 
   @override
@@ -50,11 +51,11 @@ class _SnowglobeInsertionPageState extends State<SnowglobeInsertionPage> {
     super.initState();
     if (widget.snowglobe != null) {
       // Populate fields for editing.
-      _nameController.text = widget.snowglobe!.name ?? "";
-      _codeController.text = widget.snowglobe!.code ?? "";
+      _nameController.text = widget.snowglobe!.name;
+      _codeController.text = widget.snowglobe!.code;
       _selectedDate = widget.snowglobe!.date;
-      _selectedSize = widget.snowglobe!.size ?? "S";
-      _selectedShape = widget.snowglobe!.shape ?? "Classic";
+      _selectedSize = widget.snowglobe!.size;
+      _selectedShape = widget.snowglobe!.shape;
       _city = widget.snowglobe!.city;
       _country = widget.snowglobe!.country;
       _latitude = widget.snowglobe!.latitude;
@@ -78,11 +79,11 @@ class _SnowglobeInsertionPageState extends State<SnowglobeInsertionPage> {
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Crop Image',
-          toolbarColor: Colors.deepPurpleAccent,
-          toolbarWidgetColor: Colors.white,
-          backgroundColor: Colors.black,
-          activeControlsWidgetColor: Colors.deepPurpleAccent,
-          statusBarColor: Colors.black,
+          toolbarColor: AppColors.primary,
+          toolbarWidgetColor: AppColors.foreground,
+          backgroundColor: AppColors.scaffoldBackground,
+          activeControlsWidgetColor: AppColors.primary,
+          statusBarColor: AppColors.primary,
           initAspectRatio: CropAspectRatioPreset.square,
           lockAspectRatio: true,
         ),
@@ -167,7 +168,7 @@ class _SnowglobeInsertionPageState extends State<SnowglobeInsertionPage> {
     try {
       if (widget.snowglobe == null) {
         // Insert new record.
-        Snowglobe? snowglobe = await _snowglobeService.insertSnowglobe(
+        SnowGlobe? snowglobe = await _snowglobeService.insertSnowGlobe(
           name: _nameController.text,
           size: _selectedSize,
           date: _selectedDate,
@@ -207,7 +208,7 @@ class _SnowglobeInsertionPageState extends State<SnowglobeInsertionPage> {
         }
       } else {
         // Update existing record.
-        bool updated = await _snowglobeService.updateSnowglobe(
+        bool updated = await _snowglobeService.updateSnowGlobe(
           id: widget.snowglobe!.id,
           name: _nameController.text,
           size: _selectedSize,
@@ -275,7 +276,7 @@ class _SnowglobeInsertionPageState extends State<SnowglobeInsertionPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.snowglobe == null ? 'Insert Snowglobe' : 'Edit Snowglobe',
+          widget.snowglobe == null ? 'Insert SnowGlobe' : 'Edit SnowGlobe',
         ),
       ),
       body: SingleChildScrollView(
@@ -304,7 +305,7 @@ class _SnowglobeInsertionPageState extends State<SnowglobeInsertionPage> {
                   : Container(
                     height: 200,
                     width: 200,
-                    color: Colors.grey[300],
+                    color: AppColors.scaffoldBackground,
                     child: Icon(Icons.image, size: 100),
                   ),
               SizedBox(height: 8),

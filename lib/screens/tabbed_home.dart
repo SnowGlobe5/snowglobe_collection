@@ -14,9 +14,9 @@ class _TabbedHomeState extends State<TabbedHome> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    SnowglobeListPage(),
-    SnowglobeMapPage(),
-    SnowglobeStatsPage(),
+    SnowGlobeListPage(),
+    SnowGlobeMapPage(),
+    SnowGlobeStatsPage(),
   ];
 
   @override
@@ -29,7 +29,7 @@ class _TabbedHomeState extends State<TabbedHome> {
                 // Naviga alla pagina di inserimento
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SnowglobeInsertionPage()),
+                  MaterialPageRoute(builder: (context) => SnowGlobeInsertionPage()),
                 );
               },
               child: Icon(Icons.add),

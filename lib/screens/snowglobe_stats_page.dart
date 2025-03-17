@@ -5,19 +5,19 @@ import 'package:snowglobe_collection/widgets/custom_pie_chart.dart';
 import 'package:snowglobe_collection/widgets/custom_bar_chart.dart';
 import 'package:snowglobe_collection/services/snowglobe_service.dart';
 
-class SnowglobeStatsPage extends StatefulWidget {
+class SnowGlobeStatsPage extends StatefulWidget {
   @override
-  _SnowglobeStatsPageState createState() => _SnowglobeStatsPageState();
+  _SnowGlobeStatsPageState createState() => _SnowGlobeStatsPageState();
 }
 
-class _SnowglobeStatsPageState extends State<SnowglobeStatsPage> {
+class _SnowGlobeStatsPageState extends State<SnowGlobeStatsPage> {
   late Map<String, int> yearData;
   late Map<String, int> countryData;
   late Map<String, int> sizeData;
   late Map<String, int> shapeData;
 
   bool isLoading = true;
-  final SnowglobeService _service = SnowglobeService();
+  final SnowGlobeService _service = SnowGlobeService();
 
   @override
   void initState() {

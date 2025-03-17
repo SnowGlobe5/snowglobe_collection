@@ -1,11 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:snowglobe_collection/models/snowglobe.dart';
 
-class SnowglobeService {
+class SnowGlobeService {
   final supabase = Supabase.instance.client;
 
   // Retrieves snowglobes with pagination, sorting, and filters.
-  Future<List<Snowglobe>> fetchSnowglobes({
+  Future<List<SnowGlobe>> fetchSnowGlobes({
     required int offset,
     required int limit,
     String sortField = 'date',
@@ -54,18 +54,18 @@ class SnowglobeService {
 
     // Supabase will throw an exception if something goes wrong.
     return (data as List<dynamic>)
-        .map((item) => Snowglobe.fromMap(item as Map<String, dynamic>))
+        .map((item) => SnowGlobe.fromMap(item as Map<String, dynamic>))
         .toList();
   }
 
   // Retrieves all snowglobes (useful for the map).
-  Future<List<Snowglobe>> fetchAllSnowglobes() async {
+  Future<List<SnowGlobe>> fetchAllSnowGlobes() async {
     final data = await supabase
         .from('snowglobes')
         .select()
         .order('date', ascending: false);
     return (data as List<dynamic>)
-        .map((item) => Snowglobe.fromMap(item as Map<String, dynamic>))
+        .map((item) => SnowGlobe.fromMap(item as Map<String, dynamic>))
         .toList();
   }
 
@@ -146,7 +146,7 @@ class SnowglobeService {
     }
   }
 
-  Future<Snowglobe?> insertSnowglobe({
+  Future<SnowGlobe?> insertSnowGlobe({
     required String name,
     required String size,
     DateTime? date,
@@ -172,7 +172,7 @@ class SnowglobeService {
       }).select() as List<dynamic>;
 
       if (data.isNotEmpty) {
-        return Snowglobe.fromMap(data[0] as Map<String, dynamic>);
+        return SnowGlobe.fromMap(data[0] as Map<String, dynamic>);
       }
       return null;
     } catch (e) {
@@ -181,7 +181,7 @@ class SnowglobeService {
   }
 
   // Updates an existing snowglobe record.
-  Future<bool> updateSnowglobe({
+  Future<bool> updateSnowGlobe({
     required int id,
     required String name,
     required String size,
@@ -213,7 +213,7 @@ class SnowglobeService {
   }
 
   // Deletes a snowglobe record by its ID.
-  Future<bool> deleteSnowglobe(int id) async {
+  Future<bool> deleteSnowGlobe(int id) async {
     try {
       await supabase.from('snowglobes').delete().eq('id', id);
       return true;
